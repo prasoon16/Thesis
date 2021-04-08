@@ -12,6 +12,6 @@ class Task(object):
     def get_expected_quality(self):
         mu = int(utl.uniform(35,50,1))
         sigma = int(utl.uniform(2,3,1))
-        return utl.normal(mu,sigma,1)[0]
+        return int(utl.normal(mu,sigma,1)[0])
     def print_task(self):
         print ("index {} place {} longitude {} latitude {} quality {}".format(self.index, self.place, self.longitude, self.latitude, self.expected_quality))

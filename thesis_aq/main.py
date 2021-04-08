@@ -1,45 +1,43 @@
-import pandas as pd
-import sys
-from User import User
+import data as dt
+import config
+from quality_algo import quality_based_algo
+import copy
 import utility as utl
-from Task import Task
+from trac import trac_based_algo
 
-user_list = []
-task_list = []
+def main():
+    global user_list, task_list
+    user_list = dt.create_simul_data()
+    task_list = dt.create_task_data()
+    N = config.N
+    T = config.T
+    # res_i = [['users', 'tasks', 'quality']]
+    # res_t = [['users', 'tasks', 'quality']]
+    res_i = [[]]
+    res_t = [[]]
+    for i in range(100,N,50):
+        sim_user_list = copy.deepcopy(user_list)
+        sim_user_list = sim_user_list[:i]
+        task_list_cpy = copy.deepcopy(task_list)
+        tsim_user_list = copy.deepcopy(user_list)
+        tsim_user_list = sim_user_list[:i]
+        ttask_list_cpy = copy.deepcopy(task_list)
+        print ("#### simulating for {} users {} ####".format(i, utl.get_expected_quality(task_list_cpy)))
+        print ("len(sim_user_list) {} len(task_list_cpy) {} ".format(len(sim_user_list), len(task_list_cpy)))
+        for task in task_list_cpy:
+            task.print_task()
+        qi = quality_based_algo(sim_user_list, task_list_cpy)
+        # print ("qi {}".format(qi))
+        qt = trac_based_algo(tsim_user_list, ttask_list_cpy)
+        res_i.append([i,len(task_list), qi])
+        print ("#### simulating for {} users ####".format(i))
+        res_t.append([i,len(task_list), qt])
+    print (res_i)
+    print (res_t)
+    utl.plot_quality(res_i, res_t, utl.get_expected_quality(task_list))
+    # user_list = user_list[:config.N]
+    # task_list = task_list[:config.T]
 
-def create_task_data (df):
-    l_place = df["place"]
-    l_lon = df["longitude"]
-    l_lat = df["latitude"]
-
-    size = len(l_place)
-    for i in range(size):
-        task = Task(i,l_place[i],l_lon[i], l_lat[i])
-        task_list.append(task)
-
-    for i in range(size):
-        task = task_list[i]
-        task.print_task()
-
-def create_simul_data (df):
-    l_date = df["date"]
-    l_lon = df["lon"]
-    l_lat = df["lat"]
-
-    size = len(l_date)
-    for i in range(size):
-        user = User(i, l_lon[i], l_lat[i], l_date[i])
-        user_list.append(user)
-
-    for i in range(size):
-        user = user_list[i]
-        user.print_user()
-
-def main ():
-    df = pd.read_csv("./simul.csv")
-    df_task = pd.read_csv("./madrid.csv")
-    create_simul_data(df)
-    create_task_data(df_task)
 
 if __name__ == "__main__" :
     main ()
